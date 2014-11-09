@@ -68,8 +68,9 @@ printrow([H|T]):- write('| '), write(H), write(' |'),
                   printrow(T).
 
 %find list element
+%findElem(List,Position,Element)
 findElem([],_,_):- write('Error finding the element'),nl.
-findElem([H|_],1,E):- E is H.
+findElem([H|_],1,E):- E = H.
 findElem([_|T],N,E):- N1 is N-1, findElem(T,N1,E).
 
 %findBoardElem(Board,Element,Column,Row)
@@ -80,10 +81,8 @@ findBoardElem(_,_,_,_):- nl,write('Error in findBoradElem').
 %validMove(Board,Column,Row)
 validMove(B,C,R):- 
         C < 7, C > 1, R < 5, R >1,
-        findBoardElem(B,E,C,R), voidSpace(E);
-        write('in').
+        findBoardElem(B,E,C,R), voidSpace(E).
 
-validMove(_,_,_):- nl,write('validMove failed').
 
 %validplayerPiece(Board,Column,Row,Player)
 validplayerPiece(B,C,R,1):- findBoardElem(B,E,C,R),playerOnePiece(E).
@@ -92,30 +91,30 @@ validplayerPiece(B,C,R,2):- findBoardElem(B,E,C,R),playerTwoPiece(E).
 
 %move --------   moves the piece to another cell (if possible)
 %%move(Board,Column,Row,Direction,rEsult,Player)    T - temporary board, L - new line        
-move(B,C,R,1,_,P):- L is R - 1,
+move(B,C,R,1,E,P):- L is R - 1,
         %write('yey'),!,
-        validMove(C,L,B), validplayerPiece(B,C,R,P).%,
-        %findBoardElem(B,X,C,R),replaceElemBoard(B,L,C,X,T),%move a peça
-        %findBoardElem(B,Y,C,L),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
-
-move(B,C,R,2,E,P):- L is R + 1,
-        %write('yey'),!,
-        validMove(C,L,B),validplayerPiece(B,C,R,P),
+        validMove(B,C,L), validplayerPiece(B,C,R,P),%,
         findBoardElem(B,X,C,R),replaceElemBoard(B,L,C,X,T),%move a peça
         findBoardElem(B,Y,C,L),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
-move(B,C,R,3,E,P):- K is C - 1,validMove(K,R,B),validplayerPiece(B,C,R,P),
+move(B,C,R,2,E,P):- L is R + 1,
+        %write('yey'),!,
+       validMove(B,C,L),validplayerPiece(B,C,R,P),
+        findBoardElem(B,X,C,R),replaceElemBoard(B,L,C,X,T),%move a peça
+        findBoardElem(B,Y,C,L),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
+
+move(B,C,R,3,E,P):- K is C - 1,validMove(B,K,R),validplayerPiece(B,C,R,P),
         findBoardElem(B,X,C,R),replaceElemBoard(B,R,K,X,T),%move a peça
         findBoardElem(B,Y,K,R),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
-move(B,C,R,4,E,P):- K is C + 1,validMove(K,R,B),validplayerPiece(B,C,R,P),
+move(B,C,R,4,E,P):- K is C + 1,validMove(B,K,R),validplayerPiece(B,C,R,P),
         findBoardElem(B,X,C,R),replaceElemBoard(B,R,K,X,T),%move a peça
         findBoardElem(B,Y,K,R),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
         
         
 %%failed        
-move(B,_,_,_,B,_):- write('INVALID MOVE'),nl.
+%move(B,_,_,_,B,_):-  write('INVALID MOVE'),nl.
 
 %action menu: it's the menu for each action the player can do (1 - Move, 2 - Merge, 3 - Exit)
 %actionMenu(Action,Board,rEsult,Player)
@@ -124,13 +123,13 @@ actionMenu('1',B,E,P):-
         nl,write('In which column is the piece that you want to move?'),nl,get_char(C),get_char(_),nl,number_chars(CN,[C]),
         write('In which row is the piece that you want to move?'),nl,get_char(R),get_char(_),nl,number_chars(RN,[R]),
         write('In which direction?'),
-            nl,write('1 - Up'),
-            nl,write('2 - Down'),
-            nl,write('3 - Left'),
-            nl,write('4 - Right'),
-            nl,get_char(D),number_chars(DN,[D]),
-            %write(DN).
-            get_char(_),!,move(B,CN,RN,DN,E,P).
+        nl,write('1 - Up'),
+        nl,write('2 - Down'),
+        nl,write('3 - Left'),
+        nl,write('4 - Right'),
+        nl,get_char(D),number_chars(DN,[D]),
+        get_char(_),!,move(B,CN,RN,DN,E,P);
+        write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
 
 actionMenu(_,_,_,_):- nl,write('ERROR IN ACTION MENU FUNC').
 
@@ -148,3 +147,11 @@ playerMenu(_,_):- write('ERROR IN PLAYERMENU FUNC').
 
 
 
+%%DEBUG DO MOVE
+debugMove(_):- boardgame(B),
+              findBoardElem(B,X,4,4),replaceElemBoard(B,3,4,X,T),%move a peça
+        findBoardElem(B,Y,4,3),
+        replaceElemBoard(T,4,4,Y,E),
+        write(Y),nl,
+        write(X),nl,
+        printboard(E).
