@@ -53,6 +53,10 @@ replace([H|T],N,E,[H|L]):-
         N1 is N-1,
         replace(T,N1,E,L).
 
+%not
+not(Goal) :- call(Goal),!,fail.
+not(_).
+
 
 %replaceElemBoard(initial board ,row,column ,new element , result).
 
@@ -116,6 +120,32 @@ move(B,C,R,4,E,P):- K is C + 1,validMove(B,K,R),validplayerPiece(B,C,R,P),
 %%failed        
 %move(B,_,_,_,B,_):-  write('INVALID MOVE'),nl.
 
+
+
+%sameCell(Column1,Column2,Row1,Row2)
+sameCell(C1,C2,R1,R2):- R1 =:= R2, C1 =:= C2.
+
+
+
+%validMerge(Board,Column1,Column2,Row1,Row2,Player,rEsult piece)
+validMerge(B,C1,C2,R1,R2,P,E):- 
+        Dr is R1 - R2,
+        Dc is C1 - C2,
+        not(sameCell(C1,C2,R1,R2)),
+        Dr =< 1, Dc =< 1,
+        validplayerPiece(B,C1,R1,P),validplayerPiece(B,C2,R2,P),
+        findBoardElem(B,[H1|T],C1,R1), findBoardElem(B,[H2|_],C2,R2),
+        number_chars(S1,[H1]),number_chars(S2,[H2]),
+        Et is S1 + S2,
+        Et < 4,
+        E = [Et|T].
+        
+%merge(Board,Column1,Column2,Row1,Row2,Player,rEsult)   X - is the new piece
+merge(B,C1,C2,R1,R2,P,E):- validMerge(B,C1,C2,R1,R2,P,X),
+        replaceElemBoard(B,R1,C1,X,T),%põe a nova peça
+        replaceElemBoard(T,R2,C2,[0,v],E).%poe o sitio onde a outra peça estava a vazio
+
+
 %action menu: it's the menu for each action the player can do (1 - Move, 2 - Merge, 3 - Exit)
 %actionMenu(Action,Board,rEsult,Player)
 actionMenu('1',B,E,P):- 
@@ -130,6 +160,20 @@ actionMenu('1',B,E,P):-
         nl,get_char(D),number_chars(DN,[D]),
         get_char(_),!,move(B,CN,RN,DN,E,P);
         write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
+
+actionMenu('2',B,E,P):- 
+     %   C =:= '1',
+        nl,write('The resulting piece will stay in the first chosen piece'),
+        nl,write('In which column is the first piece that you want to merge?'),nl,get_char(C1),get_char(_),nl,number_chars(C1N,[C1]),
+        write('In which row is the first piece that you want to merge?'),nl,get_char(R1),get_char(_),nl,number_chars(R1N,[R1]),
+        nl,write('In which column is the second piece that you want to merge?'),nl,get_char(C2),get_char(_),nl,number_chars(C2N,[C2]),
+        write('In which row is the second piece that you want to merge?'),nl,get_char(R2),get_char(_),nl,number_chars(R2N,[R2]),
+        
+        merge(B,C1N,C2N,R1N,R2N,P,E);
+        write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
+
+
+
 
 actionMenu(_,_,_,_):- nl,write('ERROR IN ACTION MENU FUNC').
 
