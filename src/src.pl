@@ -11,8 +11,14 @@ boardgame([[[0,v],[0,v],[0,v],[0,v],[0,v],[0,v],[0,v]],
           [[0,v],[3,p],[3,b],[3,p],[3,b],[3,p],[0,v]],
           [[0,v],[0,v],[0,v],[0,v],[0,v],[0,v],[0,v]]]).
 
+testboardgame([[[0,v],[0,v],[0,v],[0,v],[0,v],[0,v],[0,v]],
+          [[0,v],[1,p],[1,b],[1,p],[2,b],[1,p],[0,v]],
+          [[0,v],[1,b],[1,p],[0,v],[2,p],[1,b],[0,v]],
+          [[0,v],[1,p],[1,b],[1,p],[2,b],[1,p],[0,v]],
+          [[0,v],[0,v],[0,v],[0,v],[0,v],[0,v],[0,v]]]).
+
 start:- boardgame(B), playerMenu(1,B).
-       
+test:-testboardgame(B), playerMenu(1,B).
        
 printboard([]).
 printboard([H|T]):- write(' _______  _______  _______  _______  _______  _______  _______'),nl,
@@ -89,29 +95,29 @@ validMove(B,C,R):-
 
 
 %validplayerPiece(Board,Column,Row,Player)
-validplayerPiece(B,C,R,1):- findBoardElem(B,E,C,R),playerOnePiece(E).
-validplayerPiece(B,C,R,2):- findBoardElem(B,E,C,R),playerTwoPiece(E).
+validplayerPiece(B,C,R,1):- findBoardElem(B,E,C,R),!,playerOnePiece(E).
+validplayerPiece(B,C,R,2):- findBoardElem(B,E,C,R),!,playerTwoPiece(E).
 
 
 %move --------   moves the piece to another cell (if possible)
 %%move(Board,Column,Row,Direction,rEsult,Player)    T - temporary board, L - new line        
 move(B,C,R,1,E,P):- L is R - 1,
         %write('yey'),!,
-        validMove(B,C,L), validplayerPiece(B,C,R,P),%,
+        validMove(B,C,L),!,validplayerPiece(B,C,R,P),%,
         findBoardElem(B,X,C,R),replaceElemBoard(B,L,C,X,T),%move a peça
         findBoardElem(B,Y,C,L),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
 move(B,C,R,2,E,P):- L is R + 1,
         %write('yey'),!,
-       validMove(B,C,L),validplayerPiece(B,C,R,P),
+       validMove(B,C,L),!,validplayerPiece(B,C,R,P),
         findBoardElem(B,X,C,R),replaceElemBoard(B,L,C,X,T),%move a peça
         findBoardElem(B,Y,C,L),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
-move(B,C,R,3,E,P):- K is C - 1,validMove(B,K,R),validplayerPiece(B,C,R,P),
+move(B,C,R,3,E,P):- K is C - 1,validMove(B,K,R),!,validplayerPiece(B,C,R,P),
         findBoardElem(B,X,C,R),replaceElemBoard(B,R,K,X,T),%move a peça
         findBoardElem(B,Y,K,R),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
-move(B,C,R,4,E,P):- K is C + 1,validMove(B,K,R),validplayerPiece(B,C,R,P),
+move(B,C,R,4,E,P):- K is C + 1,validMove(B,K,R),!,validplayerPiece(B,C,R,P),
         findBoardElem(B,X,C,R),replaceElemBoard(B,R,K,X,T),%move a peça
         findBoardElem(B,Y,K,R),replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
@@ -135,8 +141,8 @@ validMerge(B,C1,C2,R1,R2,P,E):-
         Dr =< 1, Dc =< 1,
         validplayerPiece(B,C1,R1,P),validplayerPiece(B,C2,R2,P),
         findBoardElem(B,[H1|T],C1,R1), findBoardElem(B,[H2|_],C2,R2),
-        number_chars(S1,[H1]),number_chars(S2,[H2]),
-        Et is S1 + S2,
+        % number_chars(S1,[H1]),number_chars(S2,[H2]),
+        Et is H1 + H2,
         Et < 4,
         E = [Et|T].
         
@@ -158,8 +164,8 @@ actionMenu('1',B,E,P):-
         nl,write('3 - Left'),
         nl,write('4 - Right'),
         nl,get_char(D),number_chars(DN,[D]),
-        get_char(_),!,move(B,CN,RN,DN,E,P);
-        write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
+        get_char(_),!,move(B,CN,RN,DN,E,P).
+        %write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
 
 actionMenu('2',B,E,P):- 
      %   C =:= '1',
@@ -169,22 +175,36 @@ actionMenu('2',B,E,P):-
         nl,write('In which column is the second piece that you want to merge?'),nl,get_char(C2),get_char(_),nl,number_chars(C2N,[C2]),
         write('In which row is the second piece that you want to merge?'),nl,get_char(R2),get_char(_),nl,number_chars(R2N,[R2]),
         
-        merge(B,C1N,C2N,R1N,R2N,P,E);
-        write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
+        merge(B,C1N,C2N,R1N,R2N,P,E).
+        %actionMenu('1',B,E,P).
 
 
 
 
-actionMenu(_,_,_,_):- nl,write('ERROR IN ACTION MENU FUNC').
+%actionMenu(_,_,_,_):- nl,write('ERROR IN ACTION MENU FUNC').
 
 %playerMenu  ------------- the player selects which action to take
 %playerMenu(Player,Board)   E - temporary board
-playerMenu(1,B):-  printboard(B),nl,write('PLAYER 1'),nl,write('Which action will you take?'),nl,
-        write('1 - Move'),nl,write('2 - Merge'),nl,write('3 - Exit'),nl,get_char(C),get_char(_),actionMenu(C,B,E,1),!,playerMenu(2,E).
+playerMenu(1,B):-  printboard(B),nl,
+        write('PLAYER 1'),nl,
+        write('Which action will you take?'),nl,
+        write('1 - Move'),nl,
+        write('2 - Merge'),nl,
+        write('3 - Exit'),nl,
+        get_char(C),get_char(_),
+        actionMenu(C,B,E,1),playerMenu(2,E);
+        write('INVALID MOVE'),nl,playerMenu(1,B).
 
 
-playerMenu(2,B):-  printboard(B),nl,write('PLAYER 2'),nl,write('Which action will you take?'),nl,
-        write('1 - Move'),nl,write('2 - Merge'),nl,write('3 - Exit'),nl,get_char(C),get_char(_),actionMenu(C,B,E,2),!,playerMenu(1,E).
+playerMenu(2,B):-  printboard(B),nl,
+        write('PLAYER 2'),nl,
+        write('Which action will you take?'),nl,
+        write('1 - Move'),nl,
+        write('2 - Merge'),nl,
+        write('3 - Exit'),nl,
+        get_char(C),get_char(_),
+        actionMenu(C,B,E,2),playerMenu(1,E);
+        write('INVALID MOVE'),nl, playerMenu(2, B).
 
 
 playerMenu(_,_):- write('ERROR IN PLAYERMENU FUNC').
