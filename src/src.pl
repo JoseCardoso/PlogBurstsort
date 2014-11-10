@@ -2,7 +2,7 @@
 voidSpace([0,v]).
 playerOnePiece([_,p]).
 playerTwoPiece([_,b]).
-midCell(3,4).
+midCell(4,3).
 
 
 
@@ -122,10 +122,21 @@ move(B,C,R,4,E,P):- K is C + 1,validMove(B,K,R),!,validplayerPiece(B,C,R,P),!,
         findBoardElem(B,X,C,R),!,replaceElemBoard(B,R,K,X,T),%move a peça
         findBoardElem(B,Y,K,R),!,replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
-        
-        
-%%failed        
-%move(B,_,_,_,B,_):-  write('INVALID MOVE'),nl.
+move(B,C,R,5,E,P):- K is C - 1, L is R - 1 ,validMove(B,K,L),!,validplayerPiece(B,C,R,P),!,
+        findBoardElem(B,X,C,R),!,replaceElemBoard(B,L,K,X,T),%move a peça
+        findBoardElem(B,Y,K,L),!,replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
+
+move(B,C,R,6,E,P):- K is C - 1, L is R + 1 ,validMove(B,K,L),!,validplayerPiece(B,C,R,P),!,
+        findBoardElem(B,X,C,R),!,replaceElemBoard(B,L,K,X,T),%move a peça
+        findBoardElem(B,Y,K,L),!,replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
+
+move(B,C,R,7,E,P):- K is C + 1, L is R - 1 ,validMove(B,K,L),!,validplayerPiece(B,C,R,P),!,
+        findBoardElem(B,X,C,R),!,replaceElemBoard(B,L,K,X,T),%move a peça
+        findBoardElem(B,Y,K,L),!,replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
+
+move(B,C,R,8,E,P):- K is C + 1, L is R + 1 ,validMove(B,K,L),!,validplayerPiece(B,C,R,P),!,
+        findBoardElem(B,X,C,R),!,replaceElemBoard(B,L,K,X,T),%move a peça
+        findBoardElem(B,Y,K,L),!,replaceElemBoard(T,R,C,Y,E).%poe o sitio onde a peça estava a vazio
 
 
 
@@ -153,12 +164,11 @@ merge(B,C1,C2,R1,R2,P,E):- validMerge(B,C1,C2,R1,R2,P,X),!,
         replaceElemBoard(T,R2,C2,[0,v],E).%poe o sitio onde a outra peça estava a vazio
 
 
-%validExitCell(Column,Row)
+%validExitCell(Board,column,row,player)
 validExitCell(B,C,R,P):-
+        validplayerPiece(B,C,R,P);
         findBoardElem(B,X,C,R),!,
-        voidSpace(X);
-        validplayerPiece(B,C,R,P).
-        
+        voidSpace(X).
 %exitRemnants([Number of Pieces in Stack|Type],rEsult)
 exitRemnants([H|T],E):-
         N is H - 1,
@@ -171,8 +181,8 @@ exitPiece(1,N,E):- N1 is N + 1, E = [N1,p].
 exitPiece(2,N,E):- N1 is N + 1, E = [N1,b].
 
 %outerCell(Column,Row)
-outerCell(C,R):- C =:= 0;
-                 R =:= 0;
+outerCell(C,R):- C =:= 1;
+                 R =:= 1;
                  C =:= 7;
                  R =:= 5.
                       
@@ -261,6 +271,61 @@ exit(B,C,R,5,P,E):-
         exitPiece(P,EC,EP),
         replaceElemBoard(T,S,Z,EP,E).
 
+exit(B,C,R,6,P,E):- 
+        not(midCell(C,R)),!,
+        L is R + 1,
+        S is R + 2,
+        K is C - 1,
+        Z is C - 2,
+        outerCell(Z,S),!,
+        validplayerPiece(B,C,R,P),!,
+        not(validMove(B,K,L)),!,
+        validExitCell(B,Z,S,P),!,
+        findBoardElem(B,X,C,R),!,
+        findBoardElem(B,[EC|_],Z,S),!,
+        EC < 3,!,
+        exitRemnants(X,RP),
+        replaceElemBoard(B,R,C,RP,T),!,
+        exitPiece(P,EC,EP),
+        replaceElemBoard(T,S,Z,EP,E).
+
+exit(B,C,R,7,P,E):- 
+        not(midCell(C,R)),!,
+        L is R - 1,
+        S is R - 2,
+        K is C + 1,
+        Z is C + 2,
+        outerCell(Z,S),!,
+        validplayerPiece(B,C,R,P),!,
+        not(validMove(B,K,L)),!,
+        validExitCell(B,Z,S,P),!,
+        findBoardElem(B,X,C,R),!,
+        findBoardElem(B,[EC|_],Z,S),!,
+        EC < 3,!,
+        exitRemnants(X,RP),
+        replaceElemBoard(B,R,C,RP,T),!,
+        exitPiece(P,EC,EP),
+        replaceElemBoard(T,S,Z,EP,E).
+
+exit(B,C,R,8,P,E):- 
+        not(midCell(C,R)),!,
+        L is R + 1,
+        S is R + 2,
+        K is C + 1,
+        Z is C + 2,
+        outerCell(Z,S),!,
+        validplayerPiece(B,C,R,P),!,
+        not(validMove(B,K,L)),!,
+        validExitCell(B,Z,S,P),!,
+        findBoardElem(B,X,C,R),!,
+        findBoardElem(B,[EC|_],Z,S),!,
+        EC < 3,!,
+        exitRemnants(X,RP),
+        replaceElemBoard(B,R,C,RP,T),!,
+        exitPiece(P,EC,EP),
+        replaceElemBoard(T,S,Z,EP,E).
+
+
 
 %action menu: it's the menu for each action the player can do (1 - Move, 2 - Merge, 3 - Exit)
 %actionMenu(Action,Board,rEsult,Player)
@@ -273,9 +338,13 @@ actionMenu('1',B,E,P):-
         nl,write('2 - Down'),
         nl,write('3 - Left'),
         nl,write('4 - Right'),
+        nl,write('5 - Up Left'),
+        nl,write('6 - Down Left'),
+        nl,write('7 - Up Right'),
+        nl,write('8 - Down Right'), nl, 
         nl,get_char(D),number_chars(DN,[D]),
         get_char(_),!,move(B,CN,RN,DN,E,P).
-        %write('INVALID MOVE'),nl,actionMenu('1',B,E,P).
+       
 
 actionMenu('2',B,E,P):- 
      %   C =:= '1',
@@ -286,7 +355,7 @@ actionMenu('2',B,E,P):-
         write('In which row is the second piece that you want to merge?'),nl,get_char(R2),get_char(_),nl,number_chars(R2N,[R2]),
         
         merge(B,C1N,C2N,R1N,R2N,P,E).
-        %actionMenu('1',B,E,P).
+       
 
 actionMenu('3',B,E,P):- 
      %   C =:= '1',
@@ -303,7 +372,7 @@ actionMenu('3',B,E,P):-
         nl,write('8 - Down Right'),  nl,      
         get_char(D),get_char(_),nl,number_chars(DN,[D]),        
         exit(B,CN,RN,DN,P,E).
-        %actionMenu('1',B,E,P).
+        
 
 
 %actionMenu(_,_,_,_):- nl,write('ERROR IN ACTION MENU FUNC').
