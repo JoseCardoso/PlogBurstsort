@@ -27,6 +27,11 @@ serverLoop(Stream) :-
 	flush_output(Stream),
 	(ClientMsg == quit; ClientMsg == end_of_file), !.
 
+%%move(Board,Column,Row,Direction,rEsult,Player)
+parse_input(move(B,C,R,D,P), Answer):-
+        move(B,C,R,D,Answer,P);
+         Answer ='NO'.                                           
+
 parse_input(comando(Arg1, Arg2), Answer) :-
 	comando(Arg1, Arg2, Answer).
 	
