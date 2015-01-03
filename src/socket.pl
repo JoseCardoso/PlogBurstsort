@@ -29,8 +29,17 @@ serverLoop(Stream) :-
 
 %%move(Board,Column,Row,Direction,rEsult,Player)
 parse_input(move(B,C,R,D,P), Answer):-
-        move(B,C,R,D,Answer,P);
-         Answer ='NO'.                                           
+        move(B,C,R,D,Answer,P),!;
+         Answer =8.                         
+%merge(Board,Column1,Column2,Row1,Row2,Player,rEsult)
+parse_input(merge(B,C1,C2,R1,R2,P),Answer):-
+        merge(B,C1,C2,R1,R2,P,Answer),!;
+        Answer =8.
+
+%exit(Board,Column,Row,Direction,Player,pIeces,rEsult,New Pieces)
+parse_input(exit(B,C,R,D,P,I),Answer):-
+        exit(B,C,R,D,P,I,Answer,_),!;
+        Answer =8.              
 
 parse_input(comando(Arg1, Arg2), Answer) :-
 	comando(Arg1, Arg2, Answer).
