@@ -43,7 +43,15 @@ parse_input(exit(B,C,R,D,P,I),Answer):-
 
 parse_input(comando(Arg1, Arg2), Answer) :-
 	comando(Arg1, Arg2, Answer).
-	
+
+%aiRandomGameOp(1,B,I,P,E,NI,C,C1,R1,D,C2,R2)
+parse_input(aiRandomGameOp(1,B,I,P),Answer):-
+            repeat,
+            aiRandomGameOp2(1,B,I,P,_,_,C,C1,R1,D,C2,R2),
+            Answer = [C,C1,R1,D,C2,R2],!.
+            
+            %Answer = 1.
+
 parse_input(quit, ok-bye) :- !.
 
 parse_input(boardgame(B),Answer):-

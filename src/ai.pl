@@ -20,6 +20,25 @@ aiRandomGameOp(1,B,I,P,E,NI):- aiRandomMovePicker(C),aiROp(C,B,P,I,E,NI).
 aiRandomGameOp(2,B,I,P,L,E,NI,UL):- aiOp(3,B,P,I,L,E,NI,UL);
                                     aiROp(1,B,P,I,E,NI).
 
+%for interface with c++ C - move    C1- column 1   R1 - row 1  D - direction C2 R2
+aiRandomGameOp2(1,B,I,P,E,NI,C,C1,R1,D,C2,R2):- aiRandomMovePicker(C),aiROp2(C,B,P,I,E,NI,C1,R1,D,C2,R2). 
+
+aiROp2(1,B,P,I,E,I,C1,R1,D,-1,-1):-
+        aiRandomCellPicker(C1,R1),
+        aiRandomDirPicker(D),
+        move(B,C1,R1,D,E,P),!.
+
+aiROp2(2,B,P,I,E,I,C1,R1,-1,C2,R2):-        
+          aiRandomCellPicker(C1,R1),
+          aiRandomCellPicker(C2,R2),
+          merge(B,C1,R1,C2,R2,E,P),!.
+
+aiROp2(3,B,P,I,E,NI,C1,R1,D,-1,-1):-
+        aiRandomCellPicker(C1,R1),
+        aiRandomDirPicker(D),
+        exit(B,C1,R1,D,P,I,E,NI),!.
+
+
 %aiROp(Choice,Board,Player,pIece,rEsult,New pIece):-
 aiROp(1,B,P,I,E,I):-
         aiRandomCellPicker(C,R),
